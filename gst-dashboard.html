@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOAD GST Reconciliation Dashboard</title>
+    <style>
+        /* Core variables */
+        :root {
+            --primary: #b8866f;
+            --primary-dark: #a0725e;
+            --primary-light: #d1a490;
+            --secondary: #3c4c5b;
+            --text-dark: #333;
+            --text-light: #666;
+            --border: #e0e0e0;
+            --bg-light: #f9f9f9;
+            --white: #fff;
+            --success: #56A167;
+            --warning: #D5A458;
+            --error: #D04A4A;
+            --info: #6B7C8A;
+            --disabled: #b0b0b0;
+            
+            --font-primary: 'Playfair Display', Georgia, serif;
+            --font-secondary: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+        
+        /* Reset styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-secondary);
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            font-family: var(--font-primary);
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        
+        .tagline {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            background-color: var(--primary-light);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* Page header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-family: var(--font-primary);
+            font-size: 24px;
+            color: var(--secondary);
+        }
+        
+        .page-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Filing status */
+        .filing-status {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            background-color: #e9f1ea;
+            color: var(--success);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            gap: 6px;
+        }
+        
+        .filing-status.in-progress {
+            background-color: #e8f0f5;
+            color: var(--info);
+        }
+        
+        .filing-status.error {
+            background-color: #fbe8e8;
+            color: var(--error);
+        }
+        
+        /* Button styles */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-primary:disabled {
+            background-color: var(--disabled);
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--bg-light);
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            white-space: nowrap;
+        }
+        
+        .btn-small:hover {
+            background-color: var(--border);
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .badge-critical {
+            background-color: #FEE7E6;
+            color: var(--error);
+        }
+        
+        .badge-warning {
+            background-color: #FEF5E0;
+            color: var(--warning);
+        }
+        
+        .badge-info {
+            background-color: #E9EEF2;
+            color: var(--info);
+        }
+        
+        .badge-success {
+            background-color: #E7F0E9;
+            color: var(--success);
+        }
+        
+        .badge-error {
+            background-color: #FEE7E6;
+            color: var(--error);
+        }
+        
+        /* Month selection and filters */
+        .filters {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .filter-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* State selector */
+        .state-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 12px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .state-selector-label {
+            font-weight: 500;
+            color: var(--text-light);
+            margin-right: 12px;
+        }
+        
+        .state-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .state-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        
+        .state-pill.active {
+            background-color: var(--primary-light);
+            color: white;
+        }
+        
+        .state-pill:hover:not(.active) {
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        /* Summary cards */
+        .summary-section {
+            margin-bottom: 30px;
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 16px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .match-status {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .match-success {
+            color: var(--success);
+        }
+        
+        .match-error {
+            color: var(--error);
+        }
+        
+        .match-warning {
+            color: var(--warning);
+        }
+        
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .data-source {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .data-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .data-diff {
+            padding-top: 10px;
+            margin-top: 10px;
+            border-top: 1px dashed var(--border);
+            font-weight: 600;
+        }
+        
+        .diff-success {
+            color: var(--success);
+        }
+        
+        .diff-error {
+            color: var(--error);
+        }
+        
+        .diff-warning {
+            color: var(--warning);
+        }
+        
+        /* View Tabs */
+        .view-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .view-tab {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .view-tab:hover {
+            color: var(--primary);
+        }
+        
+        .view-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .view-content {
+            display: none;
+        }
+        
+        .view-content.active {
+            display: block;
+        }
+        
+        /* Invoice/HSN tables */
+        .invoice-section, .hsn-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .invoice-table-container, .hsn-table-container {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .invoice-table, .hsn-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .invoice-table th, .hsn-table th {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .invoice-table td, .hsn-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .invoice-table tr:hover, .hsn-table tr:hover {
+            background-color: #fafafa;
+            cursor: pointer;
+        }
+        
+        .invoice-table tr:last-child td, .hsn-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Column specific styles */
+        .invoice-table th:first-child,
+        .invoice-table td:first-child,
+        .hsn-table th:first-child,
+        .hsn-table td:first-child {
+            padding-left: 24px;
+        }
+        
+        .invoice-table th:last-child,
+        .invoice-table td:last-child,
+        .hsn-table th:last-child,
+        .hsn-table td:last-child {
+            padding-right: 24px;
+        }
+        
+        /* Number columns alignment */
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 24px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .pagination-info {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .page-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            background-color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .page-button:hover {
+            background-color: var(--bg-light);
+        }
+        
+        .page-button.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* HSN Summary Card */
+        .hsn-summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* Invoice details modal */
+        .invoice-details {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .invoice-details.active {
+            display: flex;
+        }
+        
+        .details-content {
+            background-color: white;
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 8px;
+            overflow: hidden;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .details-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .details-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .details-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        
+        .details-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .details-section {
+            margin-bottom: 30px;
+        }
+        
+        .details-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--secondary);
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .details-list {
+            list-style: none;
+        }
+        
+        .details-item {
+            margin-bottom: 12px;
+            display: flex;
+        }
+        
+        .details-label {
+            min-width: 150px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        
+        .details-value {
+            flex: 1;
+        }
+        
+        .details-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Tooltip for disabled button */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--secondary);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--secondary) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <div class="logo">AvaRetail</div>
+                <div class="tagline">GST Reconciliation Platform</div>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">PS</div>
+                <div class="user-info">
+                    <div class="user-name">Priya Sharma</div>
+                    <div class="user-role">Finance Administrator</div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">GSTR-1 Reconciliation - April 2025</h1>
+            <div class="page-actions">
+                <div class="filing-status in-progress">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Filing Status: In Progress</span>
+                </div>
+                <button class="btn btn-secondary">Export</button>
+                <div class="tooltip">
+                    <button class="btn btn-primary" disabled>Create Filing</button>
+                    <span class="tooltiptext">Filing creation is currently unavailable. Please complete all reconciliation items first.</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- State Selector -->
+        <div class="state-selector">
+            <div class="state-selector-label">Select State:</div>
+            <div class="state-pills">
+                <div class="state-pill active" data-state-code="27" onclick="switchState(this)">Maharashtra</div>
+                <div class="state-pill" data-state-code="07" onclick="switchState(this)">Delhi</div>
+                <div class="state-pill" data-state-code="29" onclick="switchState(this)">Karnataka</div>
+                <div class="state-pill" data-state-code="09" onclick="switchState(this)">Uttar Pradesh</div>
+                <div class="state-pill" data-state-code="33" onclick="switchState(this)">Tamil Nadu</div>
+                <div class="state-pill" data-state-code="24" onclick="switchState(this)">Gujarat</div>
+            </div>
+        </div>
+        
+        <!-- Summary Section -->
+        <section class="summary-section">
+            <h2 class="summary-title">Reconciliation Summary</h2>
+            <div class="summary-cards">
+                <!-- Summary Card 1 -->
+                <div class="summary-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Total Sales Value</h3>
+                        <div class="match-status match-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                            <span>Mismatch</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <div class="data-source">SAP</div>
+                            <div class="data-value">₹12,45,780.00</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-source">Wondersoft</div>
+                            <div class="data-value">₹12,35,450.00</div>
+                        </div>
+                        <div class="data-row data-diff">
+                            <div class="data-source">Difference</div>
+                            <div class="data-value diff-error">₹10,330.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Card 2 -->
+                <div class="summary-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Taxable Value</h3>
+                        <div class="match-status match-warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span>Minor Variance</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <div class="data-source">SAP</div>
+                            <div class="data-value">₹10,55,745.76</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-source">Wondersoft</div>
+                            <div class="data-value">₹10,55,042.37</div>
+                        </div>
+                        <div class="data-row data-diff">
+                            <div class="data-source">Difference</div>
+                            <div class="data-value diff-warning">₹703.39</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Card 3: CGST -->
+                <div class="summary-card">
+                    <div class="card-header">
+                        <h3 class="card-title">CGST</h3>
+                        <div class="match-status match-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6L9 17l-5-5"></path>
+                            </svg>
+                            <span>Matched</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <div class="data-source">SAP</div>
+                            <div class="data-value">₹95,017.12</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-source">Wondersoft</div>
+                            <div class="data-value">₹95,017.12</div>
+                        </div>
+                        <div class="data-row data-diff">
+                            <div class="data-source">Difference</div>
+                            <div class="data-value diff-success">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Card 4: SGST -->
+                <div class="summary-card">
+                    <div class="card-header">
+                        <h3 class="card-title">SGST</h3>
+                        <div class="match-status match-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6L9 17l-5-5"></path>
+                            </svg>
+                            <span>Matched</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <div class="data-source">SAP</div>
+                            <div class="data-value">₹95,017.12</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-source">Wondersoft</div>
+                            <div class="data-value">₹95,017.12</div>
+                        </div>
+                        <div class="data-row data-diff">
+                            <div class="data-source">Difference</div>
+                            <div class="data-value diff-success">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Card 5: IGST (New) -->
+                <div class="summary-card">
+                    <div class="card-header">
+                        <h3 class="card-title">IGST</h3>
+                        <div class="match-status match-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                            <span>Mismatch</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <div class="data-source">SAP</div>
+                            <div class="data-value">₹1,83,250.00</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-source">Wondersoft</div>
+                            <div class="data-value">₹1,79,680.00</div>
+                        </div>
+                        <div class="data-row data-diff">
+                            <div class="data-source">Difference</div>
+                            <div class="data-value diff-error">₹3,570.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- View Tabs -->
+        <div class="view-tabs">
+            <div class="view-tab active" onclick="switchView('invoice-view')">Invoice View</div>
+            <div class="view-tab" onclick="switchView('hsn-view')">HSN Summary View</div>
+        </div>
+        
+        <!-- Invoice View -->
+        <div id="invoice-view" class="view-content active">
+            <!-- Filters moved inside the invoice view tab -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Invoice Status</label>
+                    <select class="filter-control">
+                        <option>All Statuses</option>
+                        <option>Matched</option>
+                        <option>Exception</option>
+                        <option>Pending</option>
+                        <option>Resolved</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Transaction Type</label>
+                    <select class="filter-control">
+                        <option>All Types</option>
+                        <option>POS</option>
+                        <option>Ecom</option>
+                        <option>Export</option>
+                        <option>IST</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Business Type</label>
+                    <select class="filter-control">
+                        <option>All Types</option>
+                        <option>B2B</option>
+                        <option>B2C</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="flex: 2;">
+                    <label class="filter-label">Search</label>
+                    <div style="display: flex;">
+                        <input type="text" class="filter-control" placeholder="Search invoices, customers, etc." style="border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                        <button class="btn" style="border-radius: 0 4px 4px 0; background: var(--bg-light); border: 1px solid var(--border); border-left: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary">Reset</button>
+                    <button class="btn btn-primary">Apply</button>
+                </div>
+            </div>
+            
+            <section class="invoice-section">
+                <div class="section-header">
+                    <h2 class="section-title">All Invoices</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export Invoices
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="invoice-table-container">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice Number</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th class="text-right">Amount (₹)</th>
+                                <th>Exception</th>
+                                <th class="text-center">Severity</th>
+                                <th class="text-center">Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Invoice 1 -->
+                            <tr data-id="inv-1">
+                                <td>INV-2023-04567</td>
+                                <td>23 Apr 2025</td>
+                                <td>Global Fabrics Ltd</td>
+                                <td class="text-right">₹45,780.00</td>
+                                <td>Invoice Number Mismatch</td>
+                                <td class="text-center"><span class="badge badge-critical">Critical</span></td>
+                                <td class="text-center">Pending</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-1')">View Details</button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Invoice 2 -->
+                            <tr data-id="inv-2">
+                                <td>WS-INV-8932</td>
+                                <td>22 Apr 2025</td>
+                                <td>Luxe Retail Store</td>
+                                <td class="text-right">₹18,400.00</td>
+                                <td>GST Number Format Invalid</td>
+                                <td class="text-center"><span class="badge badge-warning">Warning</span></td>
+                                <td class="text-center">Pending</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-2')">View Details</button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Invoice 3 -->
+                            <tr data-id="inv-3">
+                                <td>INV-2023-08901</td>
+                                <td>21 Apr 2025</td>
+                                <td>Premium Textiles Inc</td>
+                                <td class="text-right">₹52,700.00</td>
+                                <td>Tax Calculation Mismatch</td>
+                                <td class="text-center"><span class="badge badge-critical">Critical</span></td>
+                                <td class="text-center">Pending</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-3')">View Details</button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Invoice 4 -->
+                            <tr data-id="inv-4">
+                                <td>WS-TRX-45678</td>
+                                <td>20 Apr 2025</td>
+                                <td>AvaRetail Mumbai</td>
+                                <td class="text-right">₹28,320.00</td>
+                                <td>Place of Supply Missing</td>
+                                <td class="text-center"><span class="badge badge-warning">Warning</span></td>
+                                <td class="text-center">Pending</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-4')">View Details</button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Invoice 5 -->
+                            <tr data-id="inv-5">
+                                <td>INV-2023-04532</td>
+                                <td>20 Apr 2025</td>
+                                <td>Elegance Fabrics Co.</td>
+                                <td class="text-right">₹63,720.00</td>
+                                <td>HSN Code Mismatch</td>
+                                <td class="text-center"><span class="badge badge-info">Info</span></td>
+                                <td class="text-center">Resolved</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-5')">View Details</button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Invoice 6 -->
+                            <tr data-id="inv-6">
+                                <td>INV-2023-04589</td>
+                                <td>23 Apr 2025</td>
+                                <td>Signature Designs Inc</td>
+                                <td class="text-right">₹34,250.00</td>
+                                <td>-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">Matched</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-6')">View Details</button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Invoice 7 -->
+                            <tr data-id="inv-7">
+                                <td>WS-INV-8940</td>
+                                <td>22 Apr 2025</td>
+                                <td>AvaRetail Delhi</td>
+                                <td class="text-right">₹22,150.00</td>
+                                <td>-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">Matched</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-7')">View Details</button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Invoice 8 -->
+                            <tr data-id="inv-8">
+                                <td>INV-2023-08912</td>
+                                <td>21 Apr 2025</td>
+                                <td>Supreme Fabrics Co.</td>
+                                <td class="text-right">₹47,850.00</td>
+                                <td>-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">Matched</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="showInvoiceDetails('inv-8')">View Details</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Showing 1-8 of 47 invoices
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="page-button" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                            </button>
+                            <button class="page-button active">1</button>
+                            <button class="page-button">2</button>
+                            <button class="page-button">3</button>
+                            <button class="page-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- HSN View -->
+        <div id="hsn-view" class="view-content">
+            <!-- Filters moved inside HSN view tab -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">HSN Status</label>
+                    <select class="filter-control">
+                        <option>All Statuses</option>
+                        <option>Matched</option>
+                        <option>Mismatch</option>
+                        <option>Variance</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">HSN Category</label>
+                    <select class="filter-control">
+                        <option>All Categories</option>
+                        <option>39 - Plastics</option>
+                        <option>50 - Textiles</option>
+                        <option>52 - Cotton</option>
+                        <option>61 - Apparel</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Tax Rate</label>
+                    <select class="filter-control">
+                        <option>All Rates</option>
+                        <option>5%</option>
+                        <option>12%</option>
+                        <option>18%</option>
+                        <option>28%</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="flex: 2;">
+                    <label class="filter-label">Search</label>
+                    <div style="display: flex;">
+                        <input type="text" class="filter-control" placeholder="Search HSN codes, descriptions, etc." style="border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                        <button class="btn" style="border-radius: 0 4px 4px 0; background: var(--bg-light); border: 1px solid var(--border); border-left: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary">Reset</button>
+                    <button class="btn btn-primary">Apply</button>
+                </div>
+            </div>
+            
+            <!-- HSN Summary Cards - New section -->
+            <section class="summary-section">
+                <h2 class="summary-title">HSN Summary Statistics</h2>
+                <div class="hsn-summary-cards">
+                    <!-- HSN Summary Card 1 -->
+                    <div class="summary-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Total HSN Codes</h3>
+                            <div class="match-status">
+                                <span>24 Unique Codes</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="data-row">
+                                <div class="data-source">Matched</div>
+                                <div class="data-value">18</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-source">Variance</div>
+                                <div class="data-value">4</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-source">Mismatch</div>
+                                <div class="data-value">2</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- HSN Summary Card 2 -->
+                    <div class="summary-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Top HSN Category</h3>
+                            <div class="match-status">
+                                <span>61 - Apparel</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="data-row">
+                                <div class="data-source">Total Value</div>
+                                <div class="data-value">₹6,45,890.00</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-source">% of Total</div>
+                                <div class="data-value">52%</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-source">Qty Sold</div>
+                                <div class="data-value">428 Units</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- HSN Summary Card 3 -->
+                    <div class="summary-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Tax Rate Analysis</h3>
+                            <div class="match-status">
+                                <span>4 Different Rates</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="data-row">
+                                <div class="data-source">5% Rate</div>
+                                <div class="data-value">₹2,35,680.00</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-source">12% Rate</div>
+                                <div class="data-value">₹4,78,950.00</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-source">18% Rate</div>
+                                <div class="data-value">₹5,31,150.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="hsn-section">
+                <div class="section-header">
+                    <h2 class="section-title">HSN Summary</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export HSN Data
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hsn-table-container">
+                    <table class="hsn-table">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Sr No.</th>
+                                <th>HSN</th>
+                                <th>Description</th>
+                                <th>UQC</th>
+                                <th class="text-right">Total Quantity</th>
+                                <th class="text-right">Total Value (₹)</th>
+                                <th class="text-right">Total Taxable Value (₹)</th>
+                                <th class="text-right">Integrated Tax (₹)</th>
+                                <th class="text-right">Central Tax (₹)</th>
+                                <th class="text-right">State/UT Tax (₹)</th>
+                                <th class="text-right">CESS (₹)</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- HSN 1 -->
+                            <tr>
+                                <td class="text-center">1</td>
+                                <td>39172190</td>
+                                <td>Tubes pipes and hoses and fitt</td>
+                                <td>PCS</td>
+                                <td class="text-right">119</td>
+                                <td class="text-right">8,600.74</td>
+                                <td class="text-right">7,288.72</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">656.01</td>
+                                <td class="text-right">656.01</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <!-- HSN 2 -->
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td>39173100</td>
+                                <td>Tubes pipes and hoses and fitt</td>
+                                <td>PCS</td>
+                                <td class="text-right">2</td>
+                                <td class="text-right">1,916.80</td>
+                                <td class="text-right">1,624.40</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">146.20</td>
+                                <td class="text-right">146.20</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <!-- HSN 3 -->
+                            <tr>
+                                <td class="text-center">3</td>
+                                <td>39191000</td>
+                                <td>Selfadhesive plates sheets fil</td>
+                                <td>PCS</td>
+                                <td class="text-right">152</td>
+                                <td class="text-right">4,855.30</td>
+                                <td class="text-right">4,114.60</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">370.35</td>
+                                <td class="text-right">370.35</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <!-- HSN 4 -->
+                            <tr>
+                                <td class="text-center">4</td>
+                                <td>39221000</td>
+                                <td>Baths shower baths sinks wash</td>
+                                <td>PCS</td>
+                                <td class="text-right">44</td>
+                                <td class="text-right">58,138.22</td>
+                                <td class="text-right">45,420.46</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">6,358.88</td>
+                                <td class="text-right">6,358.88</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-warning">Variance</span></td>
+                            </tr>
+                            
+                            <!-- HSN 5 -->
+                            <tr>
+                                <td class="text-center">5</td>
+                                <td>39229000</td>
+                                <td>FLUSHING CISTERNS AND SIMILAR</td>
+                                <td>PCS</td>
+                                <td class="text-right">79</td>
+                                <td class="text-right">78,601.81</td>
+                                <td class="text-right">61,407.69</td>
+                                <td class="text-right">0.00</td>
+                                <td class="text-right">8,597.06</td>
+                                <td class="text-right">8,597.06</td>
+                                <td class="text-right">0.00</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <!-- HSN 6 -->
+                            <tr>
+                                <td class="text-center">6</td>
+                                <td>39249010</td>
+                                <td>Tableware kitchenware</td>
+                                <td>PCS</td>
+                                <td class="text-right">15</td>
+                                <td class="text-right">5,586.75</td>
+                                <td class="text-right">4,734.53</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">426.11</td>
+                                <td class="text-right">426.11</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <!-- HSN 7 -->
+                            <tr>
+                                <td class="text-center">7</td>
+                                <td>39249090</td>
+                                <td>Other Household Articles</td>
+                                <td>PCS</td>
+                                <td class="text-right">118</td>
+                                <td class="text-right">34,280.46</td>
+                                <td class="text-right">29,051.24</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">2,614.61</td>
+                                <td class="text-right">2,614.61</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-error">Mismatch</span></td>
+                            </tr>
+                            
+                            <!-- HSN 8 -->
+                            <tr>
+                                <td class="text-center">8</td>
+                                <td>39269099</td>
+                                <td>OTHERS - OTHER ARTICLES</td>
+                                <td>PCS</td>
+                                <td class="text-right">36</td>
+                                <td class="text-right">5,218.79</td>
+                                <td class="text-right">4,421.02</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">397.87</td>
+                                <td class="text-right">397.87</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <!-- Additional HSN Codes -->
+                            <tr>
+                                <td class="text-center">9</td>
+                                <td>50073000</td>
+                                <td>SILK YARN AND YARN SPUN FROM SILK WASTE</td>
+                                <td>KGS</td>
+                                <td class="text-right">215</td>
+                                <td class="text-right">128,450.00</td>
+                                <td class="text-right">108,856.00</td>
+                                <td class="text-right">19,594.00</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <tr>
+                                <td class="text-center">10</td>
+                                <td>52083299</td>
+                                <td>OTHER FABRICS OF BLEACHED COTTON</td>
+                                <td>MTR</td>
+                                <td class="text-right">540</td>
+                                <td class="text-right">189,540.00</td>
+                                <td class="text-right">160,630.00</td>
+                                <td class="text-right">28,910.00</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-warning">Variance</span></td>
+                            </tr>
+                            
+                            <tr>
+                                <td class="text-center">11</td>
+                                <td>61091000</td>
+                                <td>T-SHIRTS, SINGLETS OF COTTON, KNITTED</td>
+                                <td>PCS</td>
+                                <td class="text-right">128</td>
+                                <td class="text-right">96,320.00</td>
+                                <td class="text-right">81,630.00</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">4,896.00</td>
+                                <td class="text-right">4,896.00</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-success">Matched</span></td>
+                            </tr>
+                            
+                            <tr>
+                                <td class="text-center">12</td>
+                                <td>61159900</td>
+                                <td>OTHER HOSIERY ITEMS</td>
+                                <td>PCS</td>
+                                <td class="text-right">75</td>
+                                <td class="text-right">15,750.00</td>
+                                <td class="text-right">13,345.00</td>
+                                <td class="text-right">-</td>
+                                <td class="text-right">800.70</td>
+                                <td class="text-right">800.70</td>
+                                <td class="text-right">-</td>
+                                <td class="text-center"><span class="badge badge-error">Mismatch</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Showing 1-12 of 24 HSN codes
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="page-button" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                            </button>
+                            <button class="page-button active">1</button>
+                            <button class="page-button">2</button>
+                            <button class="page-button">3</button>
+                            <button class="page-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Invoice Details Modal -->
+        <div class="invoice-details" id="invoice-detail-modal">
+            <div class="details-content">
+                <div class="details-header">
+                    <div class="details-title" id="invoice-detail-title">Invoice Details</div>
+                    <button class="details-close" onclick="hideInvoiceDetails()">&times;</button>
+                </div>
+                <div class="details-body">
+                    <div class="details-section">
+                        <h3 class="details-section-title">Exception Information</h3>
+                        <div class="details-grid">
+                            <div>
+                                <ul class="details-list">
+                                    <li class="details-item">
+                                        <div class="details-label">Invoice Number:</div>
+                                        <div class="details-value" id="detail-invoice-number">INV-2023-04567</div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">Customer:</div>
+                                        <div class="details-value" id="detail-vendor">Global Fabrics Ltd</div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">Date:</div>
+                                        <div class="details-value" id="detail-date">23 Apr 2025</div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">Amount:</div>
+                                        <div class="details-value" id="detail-amount">₹45,780.00</div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <ul class="details-list">
+                                    <li class="details-item">
+                                        <div class="details-label">Exception Type:</div>
+                                        <div class="details-value" id="detail-exception">Invoice Number Mismatch</div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">Severity:</div>
+                                        <div class="details-value" id="detail-severity">Critical</div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">Detection Time:</div>
+                                        <div class="details-value" id="detail-detection">April 23, 2025 09:45 AM</div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">Status:</div>
+                                        <div class="details-value" id="detail-status">Pending</div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-section">
+                        <h3 class="details-section-title">Exception Details</h3>
+                        <div class="details-grid">
+                            <div>
+                                <ul class="details-list">
+                                    <li class="details-item">
+                                        <div class="details-label">Issue Description:</div>
+                                        <div class="details-value" id="detail-description">
+                                            Invoice number in SAP (INV-2023-04567) does not match GL record (INV-2023-04576)
+                                        </div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">Impact:</div>
+                                        <div class="details-value" id="detail-impact">
+                                            This mismatch will cause issues during GST filing and may trigger an audit flag.
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <ul class="details-list">
+                                    <li class="details-item">
+                                        <div class="details-label">Recommended Action:</div>
+                                        <div class="details-value" id="detail-recommendation">
+                                            Verify correct invoice number in SAP system and update accordingly.
+                                        </div>
+                                    </li>
+                                    <li class="details-item">
+                                        <div class="details-label">System Link:</div>
+                                        <div class="details-value" id="detail-system-link">
+                                            <a href="#" style="color: var(--primary);">Open in SAP</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- HSN Details in Modal -->
+                    <div class="details-section">
+                        <h3 class="details-section-title">HSN Breakdown</h3>
+                        <table class="hsn-table">
+                            <thead>
+                                <tr>
+                                    <th>Sr No.</th>
+                                    <th>HSN</th>
+                                    <th>Description</th>
+                                    <th>UQC</th>
+                                    <th class="text-right">Quantity</th>
+                                    <th class="text-right">Value (₹)</th>
+                                    <th class="text-right">Taxable Value (₹)</th>
+                                    <th class="text-right">Integrated Tax (₹)</th>
+                                    <th class="text-right">Central Tax (₹)</th>
+                                    <th class="text-right">State/UT Tax (₹)</th>
+                                    <th class="text-right">CESS (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-hsn-list">
+                                <tr>
+                                    <td>1</td>
+                                    <td>39172190</td>
+                                    <td>Tubes pipes and hoses and fitt</td>
+                                    <td>PCS</td>
+                                    <td class="text-right">12</td>
+                                    <td class="text-right">2,360.74</td>
+                                    <td class="text-right">2,000.63</td>
+                                    <td class="text-right">-</td>
+                                    <td class="text-right">180.06</td>
+                                    <td class="text-right">180.06</td>
+                                    <td class="text-right">-</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>39221000</td>
+                                    <td>Baths shower baths sinks wash</td>
+                                    <td>PCS</td>
+                                    <td class="text-right">8</td>
+                                    <td class="text-right">12,250.50</td>
+                                    <td class="text-right">10,382.63</td>
+                                    <td class="text-right">-</td>
+                                    <td class="text-right">934.44</td>
+                                    <td class="text-right">934.44</td>
+                                    <td class="text-right">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="details-footer">
+                    <button class="btn btn-secondary" onclick="hideInvoiceDetails()">Close</button>
+                    <button class="btn btn-primary">Resolve Issue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State switch functionality
+        function switchState(element) {
+            // Remove active class from all state pills
+            document.querySelectorAll('.state-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            
+            // Add active class to clicked state pill
+            element.classList.add('active');
+            
+            // Get state code
+            const stateCode = element.getAttribute('data-state-code');
+            const stateName = element.textContent;
+            
+            // Update page title
+            document.querySelector('.page-title').textContent = `GSTR-1 Reconciliation - April 2025 (${stateName})`;
+            
+            // In a real application, this would trigger an API call to fetch data for the selected state
+            console.log(`Switched to state: ${stateName} (${stateCode})`);
+        }
+        
+        // Switch between Invoice and HSN views
+        function switchView(viewId) {
+            // Hide all view contents
+            document.querySelectorAll('.view-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected view content
+            document.getElementById(viewId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        // Show invoice details
+        function showInvoiceDetails(invoiceId) {
+            const modal = document.getElementById('invoice-detail-modal');
+            const title = document.getElementById('invoice-detail-title');
+            
+            // Set modal title
+            title.textContent = 'Invoice Details: ' + invoiceId;
+            
+            // Update invoice details based on the selected invoice
+            updateInvoiceDetails(invoiceId);
+            
+            // Show the modal
+            modal.classList.add('active');
+        }
+        
+        // Hide invoice details
+        function hideInvoiceDetails() {
+            const modal = document.getElementById('invoice-detail-modal');
+            modal.classList.remove('active');
+        }
+        
+        // Update invoice details in the modal
+        function updateInvoiceDetails(invoiceId) {
+            // In a real application, this would fetch data from an API
+            // For demonstration, we'll just use some hardcoded data based on the invoice ID
+            
+            const invoiceData = {
+                'inv-1': {
+                    invoiceNumber: 'INV-2023-04567',
+                    vendor: 'Global Fabrics Ltd',
+                    date: '23 Apr 2025',
+                    amount: '₹45,780.00',
+                    exception: 'Invoice Number Mismatch',
+                    severity: 'Critical',
+                    detection: 'April 23, 2025 09:45 AM',
+                    status: 'Pending',
+                    description: 'Invoice number in SAP (INV-2023-04567) does not match GL record (INV-2023-04576)',
+                    impact: 'This mismatch will cause issues during GST filing and may trigger an audit flag.',
+                    recommendation: 'Verify correct invoice number in SAP system and update accordingly.',
+                    systemLink: '<a href="#" style="color: var(--primary);">Open in SAP</a>'
+                },
+                'inv-2': {
+                    invoiceNumber: 'WS-INV-8932',
+                    vendor: 'Luxe Retail Store',
+                    date: '22 Apr 2025',
+                    amount: '₹18,400.00',
+                    exception: 'GST Number Format Invalid',
+                    severity: 'Warning',
+                    detection: 'April 22, 2025 02:18 PM',
+                    status: 'Pending',
+                    description: 'GST number (27AABCX2230M1Z3) fails checksum validation.',
+                    impact: 'May lead to rejection during GSTR filing.',
+                    recommendation: 'Verify GST number with customer or through GST portal.',
+                    systemLink: '<a href="#" style="color: var(--primary);">Verify on GST Portal</a>'
+                },
+                'inv-3': {
+                    invoiceNumber: 'INV-2023-08901',
+                    vendor: 'Premium Textiles Inc',
+                    date: '21 Apr 2025',
+                    amount: '₹52,700.00',
+                    exception: 'Tax Calculation Mismatch',
+                    severity: 'Critical',
+                    detection: 'April 21, 2025 11:22 AM',
+                    status: 'Pending',
+                    description: 'GST calculation in invoice (₹8,100) doesn\'t match expected value (₹7,875).',
+                    impact: 'Tax liability mismatch, incorrect input tax credit.',
+                    recommendation: 'Recalculate tax based on correct rate (17.5%) and update SAP record.',
+                    systemLink: '<a href="#" style="color: var(--primary);">Open in SAP</a>'
+                },
+                'inv-4': {
+                    invoiceNumber: 'WS-TRX-45678',
+                    vendor: 'AvaRetail Mumbai',
+                    date: '20 Apr 2025',
+                    amount: '₹28,320.00',
+                    exception: 'Place of Supply Missing',
+                    severity: 'Warning',
+                    detection: 'April 20, 2025 08:30 AM',
+                    status: 'Pending',
+                    description: 'Place of Supply field is empty in Wondersoft POS data.',
+                    impact: 'Incorrect IGST/CGST/SGST determination, filing errors.',
+                    recommendation: 'Update store master data with correct state code (27 - Maharashtra).',
+                    systemLink: '<a href="#" style="color: var(--primary);">Open in Wondersoft</a>'
+                },
+                'inv-5': {
+                    invoiceNumber: 'INV-2023-04532',
+                    vendor: 'Elegance Fabrics Co.',
+                    date: '20 Apr 2025',
+                    amount: '₹63,720.00',
+                    exception: 'HSN Code Mismatch',
+                    severity: 'Info',
+                    detection: 'April 20, 2025 07:15 AM',
+                    status: 'Resolved',
+                    description: 'HSN code in invoice (5208) doesn\'t match item master data (5209).',
+                    impact: 'Low risk - both codes have same tax rate.',
+                    recommendation: 'Update master data to use consistent HSN codes.',
+                    systemLink: '<a href="#" style="color: var(--primary);">View Resolution History</a>'
+                },
+                'inv-6': {
+                    invoiceNumber: 'INV-2023-04589',
+                    vendor: 'Signature Designs Inc',
+                    date: '23 Apr 2025',
+                    amount: '₹34,250.00',
+                    exception: 'No exceptions found',
+                    severity: 'None',
+                    detection: 'N/A',
+                    status: 'Matched',
+                    description: 'All data points match between SAP and Wondersoft systems.',
+                    impact: 'No impact - invoice is ready for filing.',
+                    recommendation: 'No action required.',
+                    systemLink: '<a href="#" style="color: var(--primary);">View in SAP</a>'
+                },
+                'inv-7': {
+                    invoiceNumber: 'WS-INV-8940',
+                    vendor: 'AvaRetail Delhi',
+                    date: '22 Apr 2025',
+                    amount: '₹22,150.00',
+                    exception: 'No exceptions found',
+                    severity: 'None',
+                    detection: 'N/A',
+                    status: 'Matched',
+                    description: 'All data points match between SAP and Wondersoft systems.',
+                    impact: 'No impact - invoice is ready for filing.',
+                    recommendation: 'No action required.',
+                    systemLink: '<a href="#" style="color: var(--primary);">View in Wondersoft</a>'
+                },
+                'inv-8': {
+                    invoiceNumber: 'INV-2023-08912',
+                    vendor: 'Supreme Fabrics Co.',
+                    date: '21 Apr 2025',
+                    amount: '₹47,850.00',
+                    exception: 'No exceptions found',
+                    severity: 'None',
+                    detection: 'N/A',
+                    status: 'Matched',
+                    description: 'All data points match between SAP and Wondersoft systems.',
+                    impact: 'No impact - invoice is ready for filing.',
+                    recommendation: 'No action required.',
+                    systemLink: '<a href="#" style="color: var(--primary);">View in SAP</a>'
+                }
+            };
+            
+            // Get the data for the selected invoice
+            const data = invoiceData[invoiceId];
+            
+            // Update the modal with the invoice data
+            document.getElementById('detail-invoice-number').textContent = data.invoiceNumber;
+            document.getElementById('detail-vendor').textContent = data.vendor;
+            document.getElementById('detail-date').textContent = data.date;
+            document.getElementById('detail-amount').textContent = data.amount;
+            document.getElementById('detail-exception').textContent = data.exception;
+            document.getElementById('detail-severity').textContent = data.severity;
+            document.getElementById('detail-detection').textContent = data.detection;
+            document.getElementById('detail-status').textContent = data.status;
+            document.getElementById('detail-description').textContent = data.description;
+            document.getElementById('detail-impact').textContent = data.impact;
+            document.getElementById('detail-recommendation').textContent = data.recommendation;
+            document.getElementById('detail-system-link').innerHTML = data.systemLink;
+            
+            // Handle the resolve button visibility and state
+            const resolveButton = document.querySelector('.details-footer .btn-primary');
+            
+            // For matched or resolved invoices, disable and hide the button
+            if (data.status === 'Resolved' || data.status === 'Matched') {
+                resolveButton.disabled = true;
+                resolveButton.style.opacity = '0.5';
+                
+                // Change button text for matched invoices
+                if (data.status === 'Matched') {
+                    resolveButton.textContent = 'No Action Required';
+                } else {
+                    resolveButton.textContent = 'Resolve Issue';
+                }
+            } else {
+                resolveButton.disabled = false;
+                resolveButton.style.opacity = '1';
+                resolveButton.textContent = 'Resolve Issue';
+            }
+            
+            // Update HSN data based on the selected invoice
+            // In a real application, this would be dynamic data from an API
+            let hsnData = '';
+            
+            if (invoiceId === 'inv-1') {
+                hsnData = `
+                    <tr>
+                        <td>1</td>
+                        <td>39172190</td>
+                        <td>Tubes pipes and hoses and fitt</td>
+                        <td>PCS</td>
+                        <td class="text-right">12</td>
+                        <td class="text-right">2,360.74</td>
+                        <td class="text-right">2,000.63</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">180.06</td>
+                        <td class="text-right">180.06</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>39221000</td>
+                        <td>Baths shower baths sinks wash</td>
+                        <td>PCS</td>
+                        <td class="text-right">8</td>
+                        <td class="text-right">12,250.50</td>
+                        <td class="text-right">10,382.63</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">934.44</td>
+                        <td class="text-right">934.44</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                `;
+            } else if (invoiceId === 'inv-2') {
+                hsnData = `
+                    <tr>
+                        <td>1</td>
+                        <td>39249010</td>
+                        <td>Tableware kitchenware</td>
+                        <td>PCS</td>
+                        <td class="text-right">15</td>
+                        <td class="text-right">5,586.75</td>
+                        <td class="text-right">4,734.53</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">426.11</td>
+                        <td class="text-right">426.11</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                `;
+            } else if (invoiceId === 'inv-3') {
+                hsnData = `
+                    <tr>
+                        <td>1</td>
+                        <td>39191000</td>
+                        <td>Selfadhesive plates sheets fil</td>
+                        <td>PCS</td>
+                        <td class="text-right">25</td>
+                        <td class="text-right">4,855.30</td>
+                        <td class="text-right">4,114.60</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">370.35</td>
+                        <td class="text-right">370.35</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>39269099</td>
+                        <td>OTHERS - OTHER ARTICLES</td>
+                        <td>PCS</td>
+                        <td class="text-right">10</td>
+                        <td class="text-right">5,218.79</td>
+                        <td class="text-right">4,421.02</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">397.87</td>
+                        <td class="text-right">397.87</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                `;
+            } else if (invoiceId === 'inv-5') {
+                hsnData = `
+                    <tr>
+                        <td>1</td>
+                        <td>39173100</td>
+                        <td>Tubes pipes and hoses and fitt</td>
+                        <td>PCS</td>
+                        <td class="text-right">2</td>
+                        <td class="text-right">1,916.80</td>
+                        <td class="text-right">1,624.40</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">146.20</td>
+                        <td class="text-right">146.20</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>39229000</td>
+                        <td>FLUSHING CISTERNS AND SIMILAR</td>
+                        <td>PCS</td>
+                        <td class="text-right">12</td>
+                        <td class="text-right">12,580.45</td>
+                        <td class="text-right">10,661.40</td>
+                        <td class="text-right">0.00</td>
+                        <td class="text-right">959.53</td>
+                        <td class="text-right">959.53</td>
+                        <td class="text-right">0.00</td>
+                    </tr>
+                `;
+            } else if (invoiceId === 'inv-4') {
+                hsnData = `
+                    <tr>
+                        <td>1</td>
+                        <td>61091000</td>
+                        <td>T-SHIRTS, SINGLETS OF COTTON, KNITTED</td>
+                        <td>PCS</td>
+                        <td class="text-right">22</td>
+                        <td class="text-right">16,540.00</td>
+                        <td class="text-right">14,016.95</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">841.02</td>
+                        <td class="text-right">841.02</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>61159900</td>
+                        <td>OTHER HOSIERY ITEMS</td>
+                        <td>PCS</td>
+                        <td class="text-right">15</td>
+                        <td class="text-right">3,150.00</td>
+                        <td class="text-right">2,669.00</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">160.14</td>
+                        <td class="text-right">160.14</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                `;
+            } else if (invoiceId === 'inv-6' || invoiceId === 'inv-7' || invoiceId === 'inv-8') {
+                hsnData = `
+                    <tr>
+                        <td>1</td>
+                        <td>50073000</td>
+                        <td>SILK YARN AND YARN SPUN FROM SILK WASTE</td>
+                        <td>KGS</td>
+                        <td class="text-right">45</td>
+                        <td class="text-right">28,350.00</td>
+                        <td class="text-right">24,025.00</td>
+                        <td class="text-right">4,325.00</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>52083299</td>
+                        <td>OTHER FABRICS OF BLEACHED COTTON</td>
+                        <td>MTR</td>
+                        <td class="text-right">32</td>
+                        <td class="text-right">8,320.00</td>
+                        <td class="text-right">7,050.00</td>
+                        <td class="text-right">1,270.00</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                    </tr>
+                `;
+            } else {
+                hsnData = `
+                    <tr>
+                        <td colspan="11" style="text-align: center;">No HSN breakdown available for this invoice</td>
+                    </tr>
+                `;
+            }
+            
+            document.getElementById('detail-hsn-list').innerHTML = hsnData;
+        }
+        
+        // Search functionality
+        const searchInput = document.querySelectorAll('input[type="text"]');
+        searchInput.forEach(input => {
+            input.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch(this.value, this.closest('.view-content').id);
+                }
+            });
+        });
+        
+        // Search button click
+        const searchButtons = document.querySelectorAll('input[type="text"] + button');
+        searchButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const searchText = this.previousElementSibling.value;
+                const viewId = this.closest('.view-content').id;
+                performSearch(searchText, viewId);
+            });
+        });
+        
+        // Perform search functionality
+        function performSearch(searchText, viewId) {
+            searchText = searchText.toLowerCase();
+            
+            // Basic search implementation (in a real app, this would be server-side)
+            if (searchText) {
+                if (viewId === 'invoice-view') {
+                    // Search in invoice view
+                    const rows = document.querySelectorAll('.invoice-table tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(searchText)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                } else if (viewId === 'hsn-view') {
+                    // Search in HSN view
+                    const rows = document.querySelectorAll('.hsn-table tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(searchText)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
